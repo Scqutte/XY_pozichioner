@@ -1,0 +1,22 @@
+{
+	"BUILD_DIR" : "C:/itmo/sem_1_itmo/XY_pozicioner/build/codex-final-env-64/XY_pozicioner_autogen",
+	"CMAKE_BINARY_DIR" : "C:/itmo/sem_1_itmo/XY_pozicioner/build/codex-final-env-64",
+	"CMAKE_CURRENT_BINARY_DIR" : "C:/itmo/sem_1_itmo/XY_pozicioner/build/codex-final-env-64",
+	"CMAKE_CURRENT_SOURCE_DIR" : "C:/itmo/sem_1_itmo/XY_pozicioner",
+	"CMAKE_SOURCE_DIR" : "C:/itmo/sem_1_itmo/XY_pozicioner",
+	"CROSS_CONFIG" : false,
+	"GENERATOR" : "MinGW Makefiles",
+	"INCLUDE_DIR" : "C:/itmo/sem_1_itmo/XY_pozicioner/build/codex-final-env-64/XY_pozicioner_autogen/include",
+	"INPUTS" : [ "C:/itmo/sem_1_itmo/XY_pozicioner/styles/app.qss" ],
+	"LOCK_FILE" : "C:/itmo/sem_1_itmo/XY_pozicioner/build/codex-final-env-64/CMakeFiles/XY_pozicioner_autogen.dir/AutoRcc_resources_EWIEGA46WW_Lock.lock",
+	"MULTI_CONFIG" : false,
+	"OPTIONS" : [ "-name", "resources" ],
+	"OUTPUT_CHECKSUM" : "EWIEGA46WW",
+	"OUTPUT_NAME" : "qrc_resources.cpp",
+	"RCC_EXECUTABLE" : "C:/Qt/5.15.2/mingw81_64/bin/rcc.exe",
+	"RCC_LIST_OPTIONS" : [ "--list" ],
+	"SETTINGS_FILE" : "C:/itmo/sem_1_itmo/XY_pozicioner/build/codex-final-env-64/CMakeFiles/XY_pozicioner_autogen.dir/AutoRcc_resources_EWIEGA46WW_Used.txt",
+	"SOURCE" : "C:/itmo/sem_1_itmo/XY_pozicioner/resources.qrc",
+	"USE_BETTER_GRAPH" : false,
+	"VERBOSITY" : 0
+}

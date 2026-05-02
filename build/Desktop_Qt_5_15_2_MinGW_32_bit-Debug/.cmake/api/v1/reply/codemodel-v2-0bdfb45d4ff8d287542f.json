@@ -1,0 +1,79 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-Debug-785a4379fcc05cb85423.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "XY_pozicioner",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "XY_pozicioner::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-XY_pozicioner-Debug-41f00e80d69c643bd14d.json",
+					"name" : "XY_pozicioner",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "XY_pozicioner_autogen::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-XY_pozicioner_autogen-Debug-332c8d54679c64faed1b.json",
+					"name" : "XY_pozicioner_autogen",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "XY_pozicioner_autogen_timestamp_deps::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-XY_pozicioner_autogen_timestamp_deps-Debug-f78b23c759a4f046833c.json",
+					"name" : "XY_pozicioner_autogen_timestamp_deps",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "C:/sem_1_itmo/XY_pozicioner/build/Desktop_Qt_5_15_2_MinGW_32_bit-Debug",
+		"source" : "C:/sem_1_itmo/XY_pozicioner"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 7
+	}
+}

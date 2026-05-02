@@ -1,0 +1,9 @@
+C:/sem_1_itmo/XY_pozicioner/build/Desktop_Qt_5_15_2_MinGW_32_bit-Debug/CMakeFiles/XY_pozicioner.dir
+C:/sem_1_itmo/XY_pozicioner/build/Desktop_Qt_5_15_2_MinGW_32_bit-Debug/CMakeFiles/edit_cache.dir
+C:/sem_1_itmo/XY_pozicioner/build/Desktop_Qt_5_15_2_MinGW_32_bit-Debug/CMakeFiles/rebuild_cache.dir
+C:/sem_1_itmo/XY_pozicioner/build/Desktop_Qt_5_15_2_MinGW_32_bit-Debug/CMakeFiles/list_install_components.dir
+C:/sem_1_itmo/XY_pozicioner/build/Desktop_Qt_5_15_2_MinGW_32_bit-Debug/CMakeFiles/install.dir
+C:/sem_1_itmo/XY_pozicioner/build/Desktop_Qt_5_15_2_MinGW_32_bit-Debug/CMakeFiles/install/local.dir
+C:/sem_1_itmo/XY_pozicioner/build/Desktop_Qt_5_15_2_MinGW_32_bit-Debug/CMakeFiles/install/strip.dir
+C:/sem_1_itmo/XY_pozicioner/build/Desktop_Qt_5_15_2_MinGW_32_bit-Debug/CMakeFiles/XY_pozicioner_autogen_timestamp_deps.dir
+C:/sem_1_itmo/XY_pozicioner/build/Desktop_Qt_5_15_2_MinGW_32_bit-Debug/CMakeFiles/XY_pozicioner_autogen.dir

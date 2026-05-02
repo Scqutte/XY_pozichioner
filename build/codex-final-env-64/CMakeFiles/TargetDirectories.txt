@@ -1,0 +1,9 @@
+C:/itmo/sem_1_itmo/XY_pozicioner/build/codex-final-env-64/CMakeFiles/XY_pozicioner.dir
+C:/itmo/sem_1_itmo/XY_pozicioner/build/codex-final-env-64/CMakeFiles/edit_cache.dir
+C:/itmo/sem_1_itmo/XY_pozicioner/build/codex-final-env-64/CMakeFiles/rebuild_cache.dir
+C:/itmo/sem_1_itmo/XY_pozicioner/build/codex-final-env-64/CMakeFiles/list_install_components.dir
+C:/itmo/sem_1_itmo/XY_pozicioner/build/codex-final-env-64/CMakeFiles/install.dir
+C:/itmo/sem_1_itmo/XY_pozicioner/build/codex-final-env-64/CMakeFiles/install/local.dir
+C:/itmo/sem_1_itmo/XY_pozicioner/build/codex-final-env-64/CMakeFiles/install/strip.dir
+C:/itmo/sem_1_itmo/XY_pozicioner/build/codex-final-env-64/CMakeFiles/XY_pozicioner_autogen_timestamp_deps.dir
+C:/itmo/sem_1_itmo/XY_pozicioner/build/codex-final-env-64/CMakeFiles/XY_pozicioner_autogen.dir

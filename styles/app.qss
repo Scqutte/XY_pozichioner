@@ -1,0 +1,188 @@
+QMainWindow {
+    background: #f3f7fb;
+}
+
+#centralwidget {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #f7fbff, stop:1 #edf4fb);
+}
+
+QFrame#headerCard,
+QFrame#panelCard {
+    background: #ffffff;
+    border: 1px solid #d6e3f2;
+    border-radius: 18px;
+}
+
+QLabel#titleLabel {
+    color: #0b4ea2;
+    font-size: 30px;
+    font-weight: 700;
+}
+
+QLabel#sectionTitle {
+    color: #113b73;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+QLabel#sectionText {
+    color: #52667d;
+    font-size: 14px;
+}
+
+QLabel#sectionTextStrong {
+    color: #113b73;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+QLabel#statusBadge {
+    background: #e9f2ff;
+    color: #0b4ea2;
+    border: 1px solid #bfd6fb;
+    border-radius: 14px;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 10px 18px;
+}
+
+QLabel#statusPanel,
+QPlainTextEdit#terminalLog {
+    background: #f7fbff;
+    border: 1px solid #d8e5f3;
+    border-radius: 14px;
+    color: #31465c;
+    font-size: 13px;
+    padding: 10px;
+}
+
+QLabel#moveCenterLabel {
+    background: #f7fbff;
+    border: 1px dashed #bfd2ea;
+    border-radius: 12px;
+    color: #0b4ea2;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+QComboBox#comboPorts,
+QLineEdit#inputGcode,
+QDoubleSpinBox#spinMoveStep {
+    background: #ffffff;
+    border: 1px solid #c7d8ec;
+    border-radius: 12px;
+    color: #17324d;
+    font-size: 14px;
+    padding: 0 14px;
+}
+
+QComboBox#comboPorts:focus,
+QLineEdit#inputGcode:focus,
+QDoubleSpinBox#spinMoveStep:focus {
+    border: 2px solid #0b74de;
+}
+
+QDoubleSpinBox#spinMoveStep {
+    padding: 0 38px 0 14px;
+    selection-background-color: #dcecff;
+}
+
+QDoubleSpinBox#spinMoveStep::up-button,
+QDoubleSpinBox#spinMoveStep::down-button {
+    subcontrol-origin: border;
+    width: 28px;
+    background: #edf5ff;
+    border-left: 1px solid #c7d8ec;
+}
+
+QDoubleSpinBox#spinMoveStep::up-button {
+    subcontrol-position: top right;
+    border-top-right-radius: 11px;
+    border-bottom: 1px solid #c7d8ec;
+}
+
+QDoubleSpinBox#spinMoveStep::down-button {
+    subcontrol-position: bottom right;
+    border-bottom-right-radius: 11px;
+}
+
+QDoubleSpinBox#spinMoveStep::up-button:hover,
+QDoubleSpinBox#spinMoveStep::down-button:hover {
+    background: #dcecff;
+}
+
+QDoubleSpinBox#spinMoveStep::up-arrow {
+    image: none;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 6px solid #0b4ea2;
+}
+
+QDoubleSpinBox#spinMoveStep::down-arrow {
+    image: none;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 6px solid #0b4ea2;
+}
+
+QComboBox#comboPorts::drop-down {
+    border: none;
+    width: 30px;
+}
+
+QPushButton {
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 12px;
+    padding: 0 14px;
+}
+
+QPushButton#primaryButton {
+    background: #0b74de;
+    color: #ffffff;
+    border: 1px solid #0966c4;
+}
+
+QPushButton#primaryButton:hover {
+    background: #1682ef;
+}
+
+QPushButton#primaryButton:checked {
+    background: #095fb5;
+}
+
+QPushButton#secondaryButton {
+    background: #ffffff;
+    color: #0b4ea2;
+    border: 1px solid #b9cff0;
+}
+
+QPushButton#secondaryButton:hover {
+    background: #f2f7ff;
+}
+
+QPushButton#secondaryButton:checked {
+    background: #dcecff;
+    border: 1px solid #98bbea;
+}
+
+QPushButton#dangerButton {
+    background: #fff1f0;
+    color: #b9382f;
+    border: 1px solid #f0c1bc;
+}
+
+QPushButton#dangerButton:hover {
+    background: #ffe4e1;
+}
+
+QPushButton[channelButton="true"] {
+    min-height: 50px;
+    max-height: 56px;
+    text-align: left;
+    padding: 6px 10px;
+}
