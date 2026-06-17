@@ -219,25 +219,15 @@
          </item>
          <item>
           <layout class="QHBoxLayout" name="stepRowLayout">
+           <property name="spacing">
+            <number>12</number>
+           </property>
            <item>
             <widget class="QLabel" name="stepLabel">
              <property name="text">
               <string>Шаг, мм</string>
              </property>
             </widget>
-           </item>
-           <item>
-            <spacer name="stepSpacer">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
            </item>
            <item>
             <widget class="QDoubleSpinBox" name="spinMoveStep">
@@ -263,6 +253,19 @@
               <double>10.000000000000000</double>
              </property>
             </widget>
+           </item>
+           <item>
+            <spacer name="stepSpacer">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
            </item>
           </layout>
          </item>
@@ -369,6 +372,22 @@
             <string>Аварийная остановка (M112)</string>
            </property>
           </widget>
+         </item>
+         <item>
+          <spacer name="controlsBottomSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Expanding</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
          </item>
         </layout>
        </widget>
@@ -599,6 +618,144 @@ X=0.0, Y=0.0</string>
            <item><widget class="QPushButton" name="btnCapturePosition"><property name="minimumSize"><size><width>0</width><height>40</height></size></property><property name="text"><string>Перезаписать позицию канала</string></property></widget></item>
            <item><widget class="QPushButton" name="btnExecuteChannel"><property name="minimumSize"><size><width>0</width><height>42</height></size></property><property name="text"><string>Перейти к выбранному каналу</string></property></widget></item>
           </layout>
+         </item>
+         <item>
+          <widget class="QLabel" name="autoCycleTitle">
+           <property name="text">
+            <string>Автоматический режим</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QGridLayout" name="autoCycleSettingsLayout">
+           <property name="horizontalSpacing">
+            <number>12</number>
+           </property>
+           <property name="verticalSpacing">
+            <number>10</number>
+           </property>
+           <item row="0" column="0">
+            <widget class="QLabel" name="autoSequenceLabel">
+             <property name="text">
+              <string>Последовательность каналов</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1" colspan="3">
+            <widget class="QLineEdit" name="inputAutoSequence">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>42</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>1 2 3 4 5 6 7 8 9 10 11 12 13</string>
+             </property>
+             <property name="placeholderText">
+              <string>Например: 1 2 3 2 4 5 3</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="autoDelayLabel">
+             <property name="text">
+              <string>Пауза между положениями, мс</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QSpinBox" name="spinAutoDelayMs">
+             <property name="minimumSize">
+              <size>
+               <width>150</width>
+               <height>42</height>
+              </size>
+             </property>
+             <property name="minimum">
+              <number>100</number>
+             </property>
+             <property name="maximum">
+              <number>600000</number>
+             </property>
+             <property name="singleStep">
+              <number>100</number>
+             </property>
+             <property name="value">
+              <number>1000</number>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2">
+            <widget class="QLabel" name="autoRepeatLabel">
+             <property name="text">
+              <string>Кругов (0 = бесконечно)</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="3">
+            <widget class="QSpinBox" name="spinAutoRepeatCount">
+             <property name="minimumSize">
+              <size>
+               <width>130</width>
+               <height>42</height>
+              </size>
+             </property>
+             <property name="minimum">
+              <number>0</number>
+             </property>
+             <property name="maximum">
+              <number>9999</number>
+             </property>
+             <property name="value">
+              <number>1</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="autoCycleActionsLayout">
+           <property name="spacing">
+            <number>12</number>
+           </property>
+           <item>
+            <widget class="QPushButton" name="btnStartAutoCycle">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>42</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Запустить автоцикл</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btnStopAutoCycle">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>42</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Остановить автоцикл</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QLabel" name="labelAutoCycleState">
+           <property name="text">
+            <string>Автоцикл остановлен.</string>
+           </property>
+           <property name="wordWrap">
+            <bool>true</bool>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>

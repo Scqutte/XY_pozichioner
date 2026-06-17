@@ -7,27 +7,37 @@
 #include <QPlainTextEdit>
 #include <QPushButton>
 #include <QRegularExpression>
+#include <QSpinBox>
+#include <QStringList>
+#include <QTimer>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
     , channelGroup(new QButtonGroup(this))
     , serialScanner(new SerialScanner(this))
+    , autoCycleTimer(new QTimer(this))
     , currentChannelIndex(0)
+    , autoCycleSequencePosition(0)
+    , autoCycleCompletedLoops(0)
     , currentPosition(0.0, 0.0)
     , hasKnownPosition(false)
+    , autoCycleActive(false)
 {
     ui->setupUi(this);
+    autoCycleTimer->setSingleShot(false);
     ui->contentLayout->setColumnStretch(0, 5);
     ui->contentLayout->setColumnStretch(1, 6);
     ui->contentLayout->setRowStretch(0, 0);
     ui->contentLayout->setRowStretch(1, 1);
     ui->contentLayout->setRowStretch(2, 0);
+    ui->controlsLayout->setAlignment(Qt::AlignTop);
     setupChannelButtons();
     setupStyles();
     initializeChannelPositions();
     setupConnections();
     applyChannelSelection(0);
+    updateAutoCycleUi();
     refreshPortOnClick();
 }
 
@@ -55,11 +65,16 @@ void MainWindow::setupStyles()
     ui->channelsTitle->setObjectName("sectionTitle");
     ui->stepLabel->setObjectName("sectionText");
     ui->channelsHint->setObjectName("sectionText");
+    ui->autoCycleTitle->setObjectName("sectionTextStrong");
+    ui->autoSequenceLabel->setObjectName("sectionText");
+    ui->autoDelayLabel->setObjectName("sectionText");
+    ui->autoRepeatLabel->setObjectName("sectionText");
     ui->labelSelectedChannel->setObjectName("sectionTextStrong");
     ui->labelStatus->setObjectName("statusBadge");
     ui->labelDetails->setObjectName("statusPanel");
     ui->labelCurrentPosition->setObjectName("statusPanel");
     ui->labelChannelPosition->setObjectName("statusPanel");
+    ui->labelAutoCycleState->setObjectName("statusPanel");
     ui->centerLabel->setObjectName("moveCenterLabel");
 
     ui->btnRefresh->setObjectName("secondaryButton");
@@ -75,6 +90,8 @@ void MainWindow::setupStyles()
     ui->btnRequestPosition->setObjectName("secondaryButton");
     ui->btnCapturePosition->setObjectName("secondaryButton");
     ui->btnExecuteChannel->setObjectName("primaryButton");
+    ui->btnStartAutoCycle->setObjectName("primaryButton");
+    ui->btnStopAutoCycle->setObjectName("dangerButton");
 
     QFile styleFile(":/styles/app.qss");
     if (styleFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -125,6 +142,10 @@ void MainWindow::setupConnections()
 
     connect(ui->btnHome, &QPushButton::clicked,
             this, [this]() {
+                if (autoCycleActive) {
+                    stopAutoCycle(true);
+                }
+
                 if (!serialScanner->sendCommand("G28")) {
                     appendLogLine("ERR", serialScanner->lastError());
                     return;
@@ -133,6 +154,10 @@ void MainWindow::setupConnections()
             });
     connect(ui->btnStop, &QPushButton::clicked,
             this, [this]() {
+                if (autoCycleActive) {
+                    stopAutoCycle(true);
+                }
+
                 if (!serialScanner->sendCommand("M112")) {
                     appendLogLine("ERR", serialScanner->lastError());
                 }
@@ -144,6 +169,23 @@ void MainWindow::setupConnections()
             this, &MainWindow::captureCurrentPositionForChannel);
     connect(ui->btnExecuteChannel, &QPushButton::clicked,
             this, &MainWindow::executeCurrentChannel);
+    connect(ui->btnStartAutoCycle, &QPushButton::clicked,
+            this, &MainWindow::startAutoCycle);
+    connect(ui->btnStopAutoCycle, &QPushButton::clicked,
+            this, &MainWindow::stopAutoCycleOnClick);
+    connect(ui->spinAutoDelayMs, QOverload<int>::of(&QSpinBox::valueChanged),
+            this, [this](int delayMs) {
+                if (autoCycleTimer->isActive()) {
+                    autoCycleTimer->setInterval(delayMs);
+                }
+                updateAutoCycleUi();
+            });
+    connect(ui->spinAutoRepeatCount, QOverload<int>::of(&QSpinBox::valueChanged),
+            this, [this]() { updateAutoCycleUi(); });
+    connect(ui->inputAutoSequence, &QLineEdit::textChanged,
+            this, [this]() { updateAutoCycleUi(); });
+    connect(autoCycleTimer, &QTimer::timeout,
+            this, &MainWindow::executeAutoCycleStep);
     connect(channelGroup, QOverload<int>::of(&QButtonGroup::idClicked),
             this, &MainWindow::selectChannel);
 
@@ -190,7 +232,12 @@ void MainWindow::updateConnectionState(bool connected, const QString &message)
         appendLogLine("SYS", QStringLiteral("Подключение открыто: %1").arg(message));
         // Сразу запрашиваем сведения о прошивке и текущих координатах, чтобы заполнить интерфейс.
         serialScanner->sendCommands({ "M115", "M114" });
+        updateAutoCycleUi();
         return;
+    }
+
+    if (autoCycleActive) {
+        stopAutoCycle(true);
     }
 
     currentPort.clear();
@@ -203,6 +250,7 @@ void MainWindow::updateConnectionState(bool connected, const QString &message)
                               : QStringLiteral("Подключение закрыто: %1").arg(message));
     appendLogLine("SYS", message.isEmpty() ? QStringLiteral("Соединение закрыто")
                                            : QStringLiteral("Соединение закрыто: %1").arg(message));
+    updateAutoCycleUi();
 }
 
 void MainWindow::updatePortsState(const QStringList &ports)
@@ -236,6 +284,10 @@ void MainWindow::sendManualMove(double deltaX, double deltaY)
     if (!serialScanner->isConnected()) {
         appendLogLine("ERR", "Для движения сначала подключитесь к плате.");
         return;
+    }
+
+    if (autoCycleActive) {
+        stopAutoCycle(true);
     }
 
     const QString moveCommand = QStringLiteral("G0 X%1 Y%2 F3000")
@@ -320,6 +372,163 @@ void MainWindow::requestCurrentPosition()
     }
 }
 
+bool MainWindow::moveToChannel(int channelIndex, const QString &successMessage)
+{
+    if (channelIndex < 0 || channelIndex >= channelPositions.size()) {
+        appendLogLine("ERR", "Неверный номер канала для перехода.");
+        return false;
+    }
+
+    const QPointF target = channelPositions[channelIndex];
+    const QString command = QStringLiteral("G0 X%1 Y%2 F3000")
+        .arg(target.x(), 0, 'f', 1)
+        .arg(target.y(), 0, 'f', 1);
+
+    // Переходы по каналам всегда выполняются в абсолютных координатах.
+    if (!serialScanner->sendCommands({ "G90", command })) {
+        appendLogLine("ERR", serialScanner->lastError());
+        return false;
+    }
+
+    setCurrentPosition(target.x(), target.y(), false);
+    appendLogLine("SYS", successMessage);
+    return true;
+}
+
+bool MainWindow::parseAutoCycleSequence(QVector<int> *sequence, QString *errorText) const
+{
+    if (sequence == nullptr) {
+        return false;
+    }
+
+    sequence->clear();
+
+    QString rawSequence = ui->inputAutoSequence->text().trimmed();
+    if (rawSequence.isEmpty()) {
+        if (errorText != nullptr) {
+            *errorText = "Введите последовательность каналов, например: 1 2 3 2 4 5 3.";
+        }
+        return false;
+    }
+
+    rawSequence.replace(QRegularExpression(QStringLiteral("[,;\\n\\t]+")), QStringLiteral(" "));
+    const QStringList tokens = rawSequence.split(QRegularExpression(QStringLiteral("\\s+")),
+                                                 Qt::SkipEmptyParts);
+
+    for (const QString &token : tokens) {
+        bool ok = false;
+        const int channelNumber = token.toInt(&ok);
+
+        if (!ok || channelNumber < 1 || channelNumber > channelPositions.size()) {
+            if (errorText != nullptr) {
+                *errorText = QStringLiteral(
+                    "Маршрут должен содержать только номера каналов от 1 до %1. Ошибка в значении: \"%2\".")
+                    .arg(channelPositions.size())
+                    .arg(token);
+            }
+            return false;
+        }
+
+        sequence->append(channelNumber - 1);
+    }
+
+    if (sequence->isEmpty()) {
+        if (errorText != nullptr) {
+            *errorText = "Последовательность автоцикла не должна быть пустой.";
+        }
+        return false;
+    }
+
+    return true;
+}
+
+QString MainWindow::autoCycleSequenceText(const QVector<int> &sequence) const
+{
+    if (sequence.isEmpty()) {
+        return QStringLiteral("не задан");
+    }
+
+    QStringList channelNumbers;
+    channelNumbers.reserve(sequence.size());
+
+    for (const int channelIndex : sequence) {
+        channelNumbers.append(QString::number(channelIndex + 1));
+    }
+
+    return channelNumbers.join(QStringLiteral(" "));
+}
+
+void MainWindow::updateAutoCycleUi()
+{
+    const int repeatLimit = ui->spinAutoRepeatCount->value();
+    const QString repeatText = repeatLimit == 0
+        ? QStringLiteral("без ограничения")
+        : QStringLiteral("%1").arg(repeatLimit);
+
+    ui->btnStartAutoCycle->setEnabled(!autoCycleActive && serialScanner->isConnected());
+    ui->btnStopAutoCycle->setEnabled(autoCycleActive);
+    ui->spinAutoDelayMs->setEnabled(!autoCycleActive);
+    ui->spinAutoRepeatCount->setEnabled(!autoCycleActive);
+    ui->inputAutoSequence->setEnabled(!autoCycleActive);
+
+    ui->btnConnect->setEnabled(!autoCycleActive);
+    ui->btnMoveLeft->setEnabled(!autoCycleActive);
+    ui->btnMoveRight->setEnabled(!autoCycleActive);
+    ui->btnMoveUp->setEnabled(!autoCycleActive);
+    ui->btnMoveDown->setEnabled(!autoCycleActive);
+    ui->btnHome->setEnabled(!autoCycleActive);
+    ui->btnRequestPosition->setEnabled(!autoCycleActive);
+    ui->btnCapturePosition->setEnabled(!autoCycleActive);
+    ui->btnExecuteChannel->setEnabled(!autoCycleActive);
+
+    for (QPushButton *button : channelButtons) {
+        button->setEnabled(!autoCycleActive);
+    }
+
+    if (autoCycleActive) {
+        const int nextChannelIndex = autoCycleSequence.isEmpty()
+            ? currentChannelIndex
+            : autoCycleSequence.value(autoCycleSequencePosition, currentChannelIndex);
+        ui->labelAutoCycleState->setText(QStringLiteral(
+            "Автоцикл выполняется.\n"
+            "Следующий канал: %1\n"
+            "Маршрут: %2\n"
+            "Завершено кругов: %3 / %4\n"
+            "Пауза между переходами: %5 мс")
+            .arg(channelTitle(nextChannelIndex),
+                 autoCycleSequenceText(autoCycleSequence),
+                 QString::number(autoCycleCompletedLoops),
+                 repeatText,
+                 QString::number(ui->spinAutoDelayMs->value())));
+        return;
+    }
+
+    ui->labelAutoCycleState->setText(QStringLiteral(
+        "Автоцикл остановлен.\n"
+        "Маршрут задаётся номерами каналов 1-13, повторы разрешены.\n"
+        "Настройка: %1 кругов, пауза %2 мс, маршрут: %3.")
+        .arg(repeatText,
+             QString::number(ui->spinAutoDelayMs->value()),
+             ui->inputAutoSequence->text().trimmed()));
+}
+
+void MainWindow::stopAutoCycle(bool writeLog)
+{
+    if (!autoCycleActive && !autoCycleTimer->isActive()) {
+        updateAutoCycleUi();
+        return;
+    }
+
+    autoCycleTimer->stop();
+    autoCycleActive = false;
+
+    if (writeLog) {
+        appendLogLine("SYS", "Автоцикл остановлен.");
+    }
+
+    updateAutoCycleUi();
+}
+
 void MainWindow::handleIncomingLine(const QString &line)
 {
     // Ожидаем типичный ответ M114 вида "X:10.0 Y:20.0 ..."; остальное просто оставляем в логе.
@@ -380,6 +589,11 @@ void MainWindow::selectChannel(int channelId)
 
 void MainWindow::captureCurrentPositionForChannel()
 {
+    if (autoCycleActive) {
+        appendLogLine("ERR", "Остановите автоцикл перед записью позиции канала.");
+        return;
+    }
+
     if (!hasKnownPosition) {
         appendLogLine("ERR", "Сначала считайте позицию платы через M114 или доведите позиционер после калибровки.");
         return;
@@ -399,17 +613,100 @@ void MainWindow::executeCurrentChannel()
         return;
     }
 
-    const QPointF target = channelPositions[currentChannelIndex];
-    const QString command = QStringLiteral("G0 X%1 Y%2 F3000")
-        .arg(target.x(), 0, 'f', 1)
-        .arg(target.y(), 0, 'f', 1);
-
-    // Переход к каналу выполняем в абсолютных координатах, сохранённых для этой кнопки.
-    if (!serialScanner->sendCommands({ "G90", command })) {
-        appendLogLine("ERR", serialScanner->lastError());
+    if (autoCycleActive) {
+        appendLogLine("ERR", "Остановите автоцикл перед ручным переходом по каналу.");
         return;
     }
 
-    setCurrentPosition(target.x(), target.y(), false);
-    appendLogLine("SYS", QStringLiteral("Выполнен переход к %1").arg(channelTitle(currentChannelIndex)));
+    moveToChannel(currentChannelIndex,
+                  QStringLiteral("Выполнен переход к %1").arg(channelTitle(currentChannelIndex)));
+}
+
+void MainWindow::startAutoCycle()
+{
+    if (!serialScanner->isConnected()) {
+        appendLogLine("ERR", "Для автоцикла сначала подключитесь к плате.");
+        updateAutoCycleUi();
+        return;
+    }
+
+    if (channelPositions.isEmpty()) {
+        appendLogLine("ERR", "Нет сохранённых положений для автоцикла.");
+        return;
+    }
+
+    QVector<int> sequence;
+    QString sequenceError;
+    if (!parseAutoCycleSequence(&sequence, &sequenceError)) {
+        appendLogLine("ERR", sequenceError);
+        updateAutoCycleUi();
+        return;
+    }
+
+    autoCycleSequence = sequence;
+    autoCycleActive = true;
+    autoCycleSequencePosition = 0;
+    autoCycleCompletedLoops = 0;
+    autoCycleTimer->setInterval(ui->spinAutoDelayMs->value());
+
+    appendLogLine("SYS", QStringLiteral("Автоцикл запущен. Маршрут: %1.")
+                  .arg(autoCycleSequenceText(autoCycleSequence)));
+    updateAutoCycleUi();
+    executeAutoCycleStep();
+}
+
+void MainWindow::stopAutoCycleOnClick()
+{
+    stopAutoCycle(true);
+}
+
+void MainWindow::executeAutoCycleStep()
+{
+    if (!autoCycleActive) {
+        autoCycleTimer->stop();
+        updateAutoCycleUi();
+        return;
+    }
+
+    if (!serialScanner->isConnected()) {
+        stopAutoCycle(true);
+        appendLogLine("ERR", "Автоцикл остановлен: порт отключён.");
+        return;
+    }
+
+    if (autoCycleSequence.isEmpty()) {
+        stopAutoCycle(true);
+        appendLogLine("ERR", "Автоцикл остановлен: последовательность каналов пустая.");
+        return;
+    }
+
+    const int targetIndex = autoCycleSequence.value(autoCycleSequencePosition, currentChannelIndex);
+    applyChannelSelection(targetIndex);
+
+    if (!moveToChannel(targetIndex,
+                       QStringLiteral("Автоцикл: переход к %1")
+                           .arg(channelTitle(targetIndex)))) {
+        stopAutoCycle(true);
+        return;
+    }
+
+    ++autoCycleSequencePosition;
+    if (autoCycleSequencePosition >= autoCycleSequence.size()) {
+        autoCycleSequencePosition = 0;
+        ++autoCycleCompletedLoops;
+    }
+
+    const int repeatLimit = ui->spinAutoRepeatCount->value();
+    if (repeatLimit > 0 && autoCycleCompletedLoops >= repeatLimit) {
+        stopAutoCycle(false);
+        appendLogLine("SYS", QStringLiteral("Автоцикл завершён: выполнено кругов %1.")
+                      .arg(autoCycleCompletedLoops));
+        return;
+    }
+
+    if (!autoCycleTimer->isActive()) {
+        autoCycleTimer->start();
+    }
+
+    updateAutoCycleUi();
 }

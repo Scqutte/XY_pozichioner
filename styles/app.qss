@@ -67,7 +67,10 @@ QLabel#moveCenterLabel {
 
 QComboBox#comboPorts,
 QLineEdit#inputGcode,
-QDoubleSpinBox#spinMoveStep {
+QLineEdit#inputAutoSequence,
+QDoubleSpinBox#spinMoveStep,
+QSpinBox#spinAutoDelayMs,
+QSpinBox#spinAutoRepeatCount {
     background: #ffffff;
     border: 1px solid #c7d8ec;
     border-radius: 12px;
@@ -78,40 +81,59 @@ QDoubleSpinBox#spinMoveStep {
 
 QComboBox#comboPorts:focus,
 QLineEdit#inputGcode:focus,
-QDoubleSpinBox#spinMoveStep:focus {
+QLineEdit#inputAutoSequence:focus,
+QDoubleSpinBox#spinMoveStep:focus,
+QSpinBox#spinAutoDelayMs:focus,
+QSpinBox#spinAutoRepeatCount:focus {
     border: 2px solid #0b74de;
 }
 
-QDoubleSpinBox#spinMoveStep {
+QDoubleSpinBox#spinMoveStep,
+QSpinBox#spinAutoDelayMs,
+QSpinBox#spinAutoRepeatCount {
     padding: 0 38px 0 14px;
     selection-background-color: #dcecff;
 }
 
 QDoubleSpinBox#spinMoveStep::up-button,
-QDoubleSpinBox#spinMoveStep::down-button {
+QDoubleSpinBox#spinMoveStep::down-button,
+QSpinBox#spinAutoDelayMs::up-button,
+QSpinBox#spinAutoDelayMs::down-button,
+QSpinBox#spinAutoRepeatCount::up-button,
+QSpinBox#spinAutoRepeatCount::down-button {
     subcontrol-origin: border;
     width: 28px;
     background: #edf5ff;
     border-left: 1px solid #c7d8ec;
 }
 
-QDoubleSpinBox#spinMoveStep::up-button {
+QDoubleSpinBox#spinMoveStep::up-button,
+QSpinBox#spinAutoDelayMs::up-button,
+QSpinBox#spinAutoRepeatCount::up-button {
     subcontrol-position: top right;
     border-top-right-radius: 11px;
     border-bottom: 1px solid #c7d8ec;
 }
 
-QDoubleSpinBox#spinMoveStep::down-button {
+QDoubleSpinBox#spinMoveStep::down-button,
+QSpinBox#spinAutoDelayMs::down-button,
+QSpinBox#spinAutoRepeatCount::down-button {
     subcontrol-position: bottom right;
     border-bottom-right-radius: 11px;
 }
 
 QDoubleSpinBox#spinMoveStep::up-button:hover,
-QDoubleSpinBox#spinMoveStep::down-button:hover {
+QDoubleSpinBox#spinMoveStep::down-button:hover,
+QSpinBox#spinAutoDelayMs::up-button:hover,
+QSpinBox#spinAutoDelayMs::down-button:hover,
+QSpinBox#spinAutoRepeatCount::up-button:hover,
+QSpinBox#spinAutoRepeatCount::down-button:hover {
     background: #dcecff;
 }
 
-QDoubleSpinBox#spinMoveStep::up-arrow {
+QDoubleSpinBox#spinMoveStep::up-arrow,
+QSpinBox#spinAutoDelayMs::up-arrow,
+QSpinBox#spinAutoRepeatCount::up-arrow {
     image: none;
     width: 0;
     height: 0;
@@ -120,7 +142,9 @@ QDoubleSpinBox#spinMoveStep::up-arrow {
     border-bottom: 6px solid #0b4ea2;
 }
 
-QDoubleSpinBox#spinMoveStep::down-arrow {
+QDoubleSpinBox#spinMoveStep::down-arrow,
+QSpinBox#spinAutoDelayMs::down-arrow,
+QSpinBox#spinAutoRepeatCount::down-arrow {
     image: none;
     width: 0;
     height: 0;
